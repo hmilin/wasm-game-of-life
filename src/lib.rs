@@ -33,6 +33,15 @@ pub struct Universe {
     cells: Vec<Cell>,
 }
 
+impl Cell {
+    fn toggle(&mut self) {
+        *self = match *self {
+            Cell::Dead => Cell::Alive,
+            Cell::Alive => Cell::Dead,
+        };
+    }
+}
+
 #[wasm_bindgen]
 impl Universe {
     fn get_index(&self, row: u32, column: u32) -> usize {
@@ -84,6 +93,8 @@ impl Universe {
     }
 
     pub fn new() -> Universe {
+        utils::set_panic_hook();
+
         let width = 64;
         let height = 64;
 
@@ -125,20 +136,25 @@ impl Universe {
         self.cells = (0..width * self.height).map(|_i| Cell::Dead).collect();
     }
 
-    pub fn set_height(&mut self, height: u32) {
-        self.height = height;
-        self.cells = (0..self.width * height).map(|_i| Cell::Dead).collect();
-    }
+    // pub fn set_height(&mut self, height: u32) {
+    //     self.height = height;
+    //     self.cells = (0..self.width * height).map(|_i| Cell::Dead).collect();
+    // }
 
-    pub fn get_cells(&self) -> &[Cell] {
-        &self.cells
-    }
+    // pub fn get_cells(&self) -> &[Cell] {
+    //     &self.cells
+    // }
 
-    pub fn set_cells(&mut self, cells: &[(u32, u32)]) {
-        for (row, col) in cells.iter().cloned() {
-            let idx = self.get_index(row, col);
-            self.cells[idx] = Cell::Alive;
-        }
+    // pub fn set_cells(&mut self, cells: &[(u32, u32)]) {
+    //     for (row, col) in cells.iter().cloned() {
+    //         let idx = self.get_index(row, col);
+    //         self.cells[idx] = Cell::Alive;
+    //     }
+    // }
+
+    pub fn toggle_cell(&mut self, row: u32, column: u32) {
+        let idx = self.get_index(row, column);
+        self.cells[idx].toggle();
     }
 }
 
@@ -157,3 +173,12 @@ impl fmt::Display for Universe {
         Ok(())
     }
 }
+
+extern crate web_sys;
+
+// A macro to provide `println!(..)`-style syntax for `console.log` logging.
+// macro_rules! log {
+//     ( $( $t:tt )* ) => {
+//         web_sys::console::log_1(&format!( $( $t )* ).into());
+//     }
+// }
